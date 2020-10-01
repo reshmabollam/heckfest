@@ -1,0 +1,133 @@
+// C++ Program to count numbers 
+// in a range with digit sum 
+// divisible by K having first 
+// and last digit different 
+  
+#include <bits/stdc++.h> 
+using namespace std; 
+#define ll long long int 
+  
+ll K; 
+ll N; 
+vector<int> v; 
+ll dp[20][1000][10][2][2]; 
+  
+void init(ll x) 
+{ 
+    memset(dp, -1, sizeof(dp)); 
+  
+    // For calculating the upper 
+    // bound of the sequence. 
+    v.clear(); 
+    while (x > 0) { 
+        v.push_back(x % 10); 
+        x /= 10; 
+    } 
+  
+    reverse(v.begin(), v.end()); 
+  
+    N = v.size(); 
+} 
+  
+ll fun(ll pos, ll sum, ll st, ll check, ll f) 
+{ 
+    if (pos == N) { 
+  
+        // checking whether the sum 
+        // of digits = 0 or not 
+        // and the corner case 
+        // as number equal to 1 
+        return (sum == 0 
+                and check == 1); 
+    } 
+  
+    // If the state is visited 
+    // then return the answer 
+    // of this state directly. 
+    if (dp[pos][sum][st][check][f] != -1) 
+        return dp[pos][sum][st][check][f]; 
+  
+    ll lmt = 9; 
+  
+    // for checking whether digit 
+    // to be placed is up to 
+    // upper bound at the 
+    // positon pos or upto 9 
+    if (!f) 
+        lmt = v[pos]; 
+  
+    ll ans = 0; 
+    for (int digit = 0; digit <= lmt; digit++) { 
+  
+        ll nf = f; 
+  
+        // calculating new digit 
+        // sum modulo k 
+        ll new_sum = (sum + digit) % K; 
+  
+        ll new_check = check; 
+        ll new_st = st; 
+        if (f == 0 and digit < lmt) 
+            nf = 1; 
+  
+        // check if there is a prefix 
+        // of 0s and current digit != 0 
+        if (check == 0 and digit != 0) { 
+  
+            // Then current digit will 
+            // be the starting digit 
+            new_st = digit; 
+  
+            // Update the boolean flag 
+            // that the starting digit 
+            // has been found 
+            new_check = 1; 
+        } 
+  
+        // At n-1, check if current digit 
+        // and starting digit are the same 
+        // then no need to calculate this answer. 
+        if (pos == N - 1 
+            and new_st == digit) 
+            continue; 
+  
+        // Else find the answer 
+        ans += fun(pos + 1, 
+                   new_sum, 
+                   new_st, 
+                   new_check, nf); 
+    } 
+  
+    return dp[pos][sum][st][check][f] = ans; 
+} 
+  
+// Function to find the required count 
+void findCount(int L, int R, int K) 
+{ 
+  
+    // Setting up the upper bound 
+    init(R); 
+  
+    // calculating F(R) 
+    ll r_ans = fun(0, 0, 0, 0, 0); 
+  
+    // Setting up the upper bound 
+    init(L - 1); 
+  
+    // calculating F(L-1) 
+    ll l_ans = fun(0, 0, 0, 0, 0); 
+  
+    cout << r_ans - l_ans; 
+} 
+  
+// Driver code 
+int main() 
+{ 
+    ll L = 10; 
+    ll R = 20; 
+    K = 2; 
+  
+    findCount(L, R, K); 
+  
+    return 0; 
+} 
