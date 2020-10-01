@@ -1,0 +1,109 @@
+// C++ program to count the integers 
+// in a range [L, R] such that 
+// their digit sum is Fibonacci 
+// and divisible by K 
+  
+#include <bits/stdc++.h> 
+using namespace std; 
+  
+const int maxSize = 1e5 + 5; 
+bool isFib[maxSize]; 
+int prefix[maxSize]; 
+  
+// Function to return the 
+// digit sum of a number 
+int digitSum(int num) 
+{ 
+    int s = 0; 
+    while (num != 0) { 
+        s = s + num % 10; 
+        num = num / 10; 
+    } 
+    return s; 
+} 
+  
+// Function to generate all the Fibonacci 
+// numbers upto maxSize 
+void generateFibonacci() 
+{ 
+    memset(isFib, false, sizeof(isFib)); 
+  
+    // Adding the first two Fibonacci 
+    // numbers in the set 
+    int prev = 0, curr = 1; 
+    isFib[prev] = isFib[curr] = true; 
+  
+    // Computing the remaining Fibonacci 
+    // numbers based on the previous 
+    // two Fibonacci numbers 
+    while (curr < maxSize) { 
+        int temp = curr + prev; 
+        isFib[temp] = true; 
+        prev = curr; 
+        curr = temp; 
+    } 
+} 
+  
+// Pre-Computation till maxSize 
+// and for a given K 
+void precompute(int k) 
+{ 
+    generateFibonacci(); 
+  
+    for (int i = 1; i < maxSize; i++) { 
+  
+        // Getting the digit sum 
+        int sum = digitSum(i); 
+  
+        // Check if the digit sum 
+        // is Fibonacci and divisible by k 
+        if (isFib[sum] == true
+            && sum % k == 0) { 
+            prefix[i]++; 
+        } 
+    } 
+  
+    // Taking Prefix Sum 
+    for (int i = 1; i < maxSize; i++) { 
+        prefix[i] = prefix[i] 
+                    + prefix[i - 1]; 
+    } 
+} 
+  
+// Function to perform the queries 
+void performQueries( 
+    int k, int q, 
+    vector<vector<int> >& query) 
+{ 
+    // Precompute the results 
+    precompute(k); 
+  
+    vector<int> ans; 
+  
+    // Iterating through the queries 
+    for (int i = 0; i < q; i++) { 
+  
+        int l = query[i][0], 
+            r = query[i][1]; 
+  
+        // Getting count of range 
+        // in range [L, R] 
+        int cnt = prefix[r] 
+                  - prefix[l - 1]; 
+        cout << cnt << endl; 
+    } 
+} 
+  
+// Driver code 
+int main() 
+{ 
+    vector<vector<int> > query 
+        = { { 1, 11 }, 
+            { 5, 15 }, 
+            { 2, 24 } }; 
+    int k = 2, q = query.size(); 
+  
+    performQueries(k, q, query); 
+  
+    return 0; 
+} 
