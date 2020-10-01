@@ -1,0 +1,87 @@
+// C++ implementation of the approach
+#include <bits/stdc++.h>
+using namespace std;
+ 
+// Function to find the digit sum
+// for a number
+int digitSum(int num)
+{
+    int sum = 0;
+    while (num) {
+        sum += (num % 10);
+        num /= 10;
+    }
+ 
+    return sum;
+}
+ 
+// Procedure to build the segment tree
+void buildTree(vector<int>& tree, int* arr,
+               int index, int s, int e)
+{
+ 
+    // Reached the leaf node
+    // of the segment tree
+    if (s == e) {
+        if (digitSum(arr[s]) & 1)
+            tree[index] = 0;
+        else
+            tree[index] = 1;
+        return;
+    }
+ 
+    // Recursively call the buildTree
+    // on both the nodes of the tree
+    int mid = (s + e) / 2;
+    buildTree(tree, arr, 2 * index,
+              s, mid);
+    buildTree(tree, arr, 2 * index + 1,
+              mid + 1, e);
+ 
+    tree[index] = tree[2 * index]
+                + tree[2 * index + 1];
+}
+ 
+// Query procedure to get the answer
+// for each query l and r are
+// query range
+int query(vector<int> tree, int index, 
+          int s, int e, int l, int r)
+{
+ 
+    // Out of bound or no overlap
+    if (r < s || l > e)
+        return 0;
+ 
+    // Complete overlap
+    // Query range completely lies in
+    // the segment tree node range
+    if (s >= l && e <= r) {
+        return tree[index];
+    }
+ 
+    // Partially overlap
+    // Query range partially lies in
+    // the segment tree node range
+    int mid = (s + e) / 2;
+    return (query(tree, 2 * index, s,
+                  mid, l, r)
+            + query(tree, 2 * index + 1, 
+                    mid + 1, e, l, r));
+}
+ 
+// Driver code
+int main()
+{
+    int arr[] = { 7, 3, 19, 13, 5, 4 };
+    int n = sizeof(arr) / sizeof(arr[0]);
+    vector<int> tree(4 * n + 1);
+ 
+    int L = 1, R = 5;
+ 
+    buildTree(tree, arr, 1, 0, n - 1);
+ 
+    cout << query(tree, 1, 0, n - 1, L, R)
+         << endl;
+    return 0;
+}
